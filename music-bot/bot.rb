@@ -4,10 +4,15 @@ module MusicBot
       client.say(text: 'pong', channel: data.channel)
     end
 
-    command :list do  |client, data, match|
+    command :list do |client, data, match|
       artists = MusicBot::Model::Artist.take(500) # tmp
       names = artists.map(&:name).join("\n")
       client.say(text: "Current subscribes...\n#{names}", channel: data.channel)
+    end
+
+    command :run do |client, data, match|
+      MusicBot::Crawler.run
+      client.say(text: 'Done!', channel: data.channel)
     end
 
     command 'subscribe', /.+/ do |client, data, match|
