@@ -15,6 +15,17 @@ module MusicBot
       client.say(text: 'Done!', channel: data.channel)
     end
 
+    command :help do |client, data, match|
+      message = <<MESSAGE
+      newsbotの使い方
+      @newsbot subscribe アーティスト名 ... 登録できるぞ！
+      @newsbot unsubscribe アーティスト名 ... 登録を解除できるぞ！
+      @newsbot list ... 現在の登録状況が見られるぞ！
+      @newsbot run ... ニュースを取ってくるぞ！（ニュースは放っておいても3日おきに配信されるぞ！）
+MESSAGE
+      client.say(text: message, channel: data.channel)
+    end
+
     command 'subscribe', /.+/ do |client, data, match|
       _, artist = *match['command'].match(/unsubscribe\s(.+)/)
       command = :create_record
