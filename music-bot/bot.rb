@@ -11,7 +11,7 @@ module MusicBot
     end
 
     command :run do |client, data, match|
-      MusicBot::Crawler.run
+      MusicBot::Crawler.run_all
       client.say(text: 'Done!', channel: data.channel)
     end
 
