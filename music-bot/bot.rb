@@ -10,9 +10,15 @@ module MusicBot
       client.say(text: "Current subscribes...\n#{names}", channel: data.channel)
     end
 
-    command :run do |client, data, match|
-      MusicBot::Crawler.run_all
-      client.say(text: 'Done!', channel: data.channel)
+    # TODO: Sanitize
+    command :run, /.+/ do |client, data, match|
+      artist = match['expression']
+      if artist
+        MusicBot::Crawler.run_with_artist_name(artist)
+      else
+        MusicBot::Crawler.run_all
+        client.say(text: 'Done!', channel: data.channel)
+      end
     end
 
     command :help do |client, data, match|
@@ -21,7 +27,8 @@ module MusicBot
       @newsbot subscribe アーティスト名 ... 登録できるぞ！
       @newsbot unsubscribe アーティスト名 ... 登録を解除できるぞ！
       @newsbot list ... 現在の登録状況が見られるぞ！
-      @newsbot run ... ニュースを取ってくるぞ！（ニュースは放っておいても3日おきに配信されるぞ！）
+      @newsbot run ... 登録されているアーティストのニュースを取ってくるぞ！（ニュースは放っておいても3日おきに配信されるぞ！）
+      @newsbot run アーティスト名 ... 登録はせずにニュースを取ってくるぞ！
 MESSAGE
       client.say(text: message, channel: data.channel)
     end

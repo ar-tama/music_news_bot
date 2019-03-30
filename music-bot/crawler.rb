@@ -10,6 +10,13 @@ module MusicBot
       self.run_with_artists(artists)
     end
 
+    def self.run_with_artist_name(name)
+      articles = MusicBot::Fetcher.crawl(name)
+      if articles.size > 0
+        MusicBot::Sender.new(name, articles).send_to_slack
+      end
+    end
+
     private
 
     def self.run_with_artists(artists)
