@@ -4,23 +4,6 @@ module MusicBot
       client.say(text: 'pong', channel: data.channel)
     end
 
-    command :list do |client, data, match|
-      artists = MusicBot::Model::Artist.take(500) # tmp
-      names = artists.map(&:name).join("\n")
-      client.say(text: "Current subscribes...\n#{names}", channel: data.channel)
-    end
-
-    # TODO: Sanitize
-    command :run, /.+/ do |client, data, match|
-      artist = match['expression']
-      if artist
-        MusicBot::Crawler.run_with_artist_name(artist)
-      else
-        MusicBot::Crawler.run_all
-        client.say(text: 'Done!', channel: data.channel)
-      end
-    end
-
     command :help do |client, data, match|
       message = <<MESSAGE
       newsbotの使い方
@@ -33,17 +16,42 @@ MESSAGE
       client.say(text: message, channel: data.channel)
     end
 
-    command 'subscribe', /.+/ do |client, data, match|
-      _, artist = *match['command'].match(/unsubscribe\s(.+)/)
-      command = :create_record
-      if artist
-        command = :delete_record
-      else
-        artist = match['expression']
-      end
+    command :list do |client, data, match|
+      artists = MusicBot::Model::Artist.take(500) # tmp
+      names = artists.map(&:name).join("\n")
+      client.say(text: "Current subscribes...\n#{names}", channel: data.channel)
+    end
 
+    # TODO: Sanitize
+    command :run, /run\s(.+)$/ do |client, data, match|
+      artist = match['expression']
       if artist
-        exception = self.send(command, artist)
+        MusicBot::Crawler.run_with_artist_name(artist)
+        client.say(text: 'Done!', channel: data.channel)
+      else
+        MusicBot::Crawler.run_all
+        client.say(text: 'Done!', channel: data.channel)
+      end
+    end
+
+    command 'subscribe', /^subscribe\s(.+)$/ do |client, data, match|
+      artist = match['expression']
+      if artist
+        exception = self.create_record(artist)
+        if exception
+          client.say(text: exception, channel: data.channel)
+        else
+          client.say(text: "Ok, complete: #{artist}", channel: data.channel)
+        end
+      else
+        client.say(text: 'ERROR: No artist name has given.', channel: data.channel)
+      end
+    end
+
+    command 'unsubscribe', /^unsubscribe\s(.+)$/ do |client, data, match|
+      artist = match['expression']
+      if artist
+        exception = self.delete_record(artist)
         if exception
           client.say(text: exception, channel: data.channel)
         else
